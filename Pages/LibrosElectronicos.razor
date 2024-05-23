@@ -1,0 +1,78 @@
+﻿@page "/libros-electronicos"
+@using BibliotecaApp.Data
+@inject BibliotecaService BibliotecaService
+
+<h3>Lista de Libros Electrónicos</h3>
+
+<button @onclick="MostrarFormulario">Agregar Libro Electrónico</button>
+
+@if (mostrarFormulario)
+{
+    <EditForm Model="nuevoLibroElectronico" OnValidSubmit="AgregarLibroElectronico">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>Título:</label>
+            <InputText @bind-Value="nuevoLibroElectronico.Titulo" />
+        </div>
+        <div>
+            <label>Autor:</label>
+            <InputText @bind-Value="nuevoLibroElectronico.Autor" />
+        </div>
+        <div>
+            <label>Género:</label>
+            <InputText @bind-Value="nuevoLibroElectronico.Genero" />
+        </div>
+        <div>
+            <label>Año de Publicación:</label>
+            <InputNumber @bind-Value="nuevoLibroElectronico.AñoPublicacion" />
+        </div>
+        <div>
+            <label>Formato:</label>
+            <InputText @bind-Value="nuevoLibroElectronico.Formato" />
+        </div>
+        <div>
+            <label>Tamaño del Archivo (MB):</label>
+            <InputNumber @bind-Value="nuevoLibroElectronico.TamañoArchivo" />
+        </div>
+        <button type="submit">Agregar</button>
+        <button type="button" @onclick="OcultarFormulario">Cancelar</button>
+    </EditForm>
+}
+
+<ul>
+    @foreach (var libroElectronico in librosElectronicos)
+    {
+        <li>@libroElectronico.Titulo - @libroElectronico.Autor - @libroElectronico.Genero - @libroElectronico.AñoPublicacion - Formato: @libroElectronico.Formato - Tamaño: @libroElectronico.TamañoArchivo MB</li>
+    }
+</ul>
+
+@code {
+    private List<LibroElectronico> librosElectronicos;
+    private LibroElectronico nuevoLibroElectronico = new LibroElectronico();
+    private bool mostrarFormulario = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        librosElectronicos = await BibliotecaService.GetLibrosElectronicosAsync();
+    }
+
+    private void MostrarFormulario()
+    {
+        mostrarFormulario = true;
+    }
+
+    private void OcultarFormulario()
+    {
+        mostrarFormulario = false;
+        nuevoLibroElectronico = new LibroElectronico();
+    }
+
+    private async Task AgregarLibroElectronico()
+    {
+        await BibliotecaService.AddLibroElectronicoAsync(nuevoLibroElectronico);
+        librosElectronicos = await BibliotecaService.GetLibrosElectronicosAsync();
+        OcultarFormulario();
+    }
+}

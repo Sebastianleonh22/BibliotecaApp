@@ -1,0 +1,78 @@
+﻿@page "/revistas"
+@using BibliotecaApp.Data
+@inject BibliotecaService BibliotecaService
+
+<h3>Lista de Revistas</h3>
+
+<button @onclick="MostrarFormulario">Agregar Revista</button>
+
+@if (mostrarFormulario)
+{
+    <EditForm Model="nuevaRevista" OnValidSubmit="AgregarRevista">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>Título:</label>
+            <InputText @bind-Value="nuevaRevista.Titulo" />
+        </div>
+        <div>
+            <label>Autor:</label>
+            <InputText @bind-Value="nuevaRevista.Autor" />
+        </div>
+        <div>
+            <label>Género:</label>
+            <InputText @bind-Value="nuevaRevista.Genero" />
+        </div>
+        <div>
+            <label>Año de Publicación:</label>
+            <InputNumber @bind-Value="nuevaRevista.AñoPublicacion" />
+        </div>
+        <div>
+            <label>Volumen:</label>
+            <InputNumber @bind-Value="nuevaRevista.Volumen" />
+        </div>
+        <div>
+            <label>Número de Ejemplar:</label>
+            <InputNumber @bind-Value="nuevaRevista.NumeroEjemplar" />
+        </div>
+        <button type="submit">Agregar</button>
+        <button type="button" @onclick="OcultarFormulario">Cancelar</button>
+    </EditForm>
+}
+
+<ul>
+    @foreach (var revista in revistas)
+    {
+        <li>@revista.Titulo - @revista.Autor - @revista.Genero - @revista.AñoPublicacion - Volumen: @revista.Volumen - Número: @revista.NumeroEjemplar</li>
+    }
+</ul>
+
+@code {
+    private List<Revista> revistas;
+    private Revista nuevaRevista = new Revista();
+    private bool mostrarFormulario = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        revistas = await BibliotecaService.GetRevistasAsync();
+    }
+
+    private void MostrarFormulario()
+    {
+        mostrarFormulario = true;
+    }
+
+    private void OcultarFormulario()
+    {
+        mostrarFormulario = false;
+        nuevaRevista = new Revista();
+    }
+
+    private async Task AgregarRevista()
+    {
+        await BibliotecaService.AddRevistaAsync(nuevaRevista);
+        revistas = await BibliotecaService.GetRevistasAsync();
+        OcultarFormulario();
+    }
+}

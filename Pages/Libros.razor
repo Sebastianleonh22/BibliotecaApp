@@ -1,0 +1,70 @@
+﻿@page "/libros"
+@using BibliotecaApp.Data
+@inject BibliotecaService BibliotecaService
+
+<h3>Lista de Libros</h3>
+
+<button @onclick="MostrarFormulario">Agregar Libro</button>
+
+@if (mostrarFormulario)
+{
+    <EditForm Model="nuevoLibro" OnValidSubmit="AgregarLibro">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label>Título:</label>
+            <InputText @bind-Value="nuevoLibro.Titulo" />
+        </div>
+        <div>
+            <label>Autor:</label>
+            <InputText @bind-Value="nuevoLibro.Autor" />
+        </div>
+        <div>
+            <label>Género:</label>
+            <InputText @bind-Value="nuevoLibro.Genero" />
+        </div>
+        <div>
+            <label>Año de Publicación:</label>
+            <InputNumber @bind-Value="nuevoLibro.AñoPublicacion" />
+        </div>
+        <button type="submit">Agregar</button>
+        <button type="button" @onclick="OcultarFormulario">Cancelar</button>
+    </EditForm>
+}
+
+<ul>
+    @foreach (var libro in libros)
+    {
+        <li>@libro.Titulo - @libro.Autor - @libro.Genero - @libro.AñoPublicacion</li>
+    }
+</ul>
+
+@code {
+    private List<Libro> libros;
+    private Libro nuevoLibro = new Libro();
+    private bool mostrarFormulario = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        libros = await BibliotecaService.GetLibrosAsync();
+    }
+
+    private void MostrarFormulario()
+    {
+        mostrarFormulario = true;
+    }
+
+    private void OcultarFormulario()
+    {
+        mostrarFormulario = false;
+        nuevoLibro = new Libro();
+    }
+
+    private async Task AgregarLibro()
+    {
+        await BibliotecaService.AddLibroAsync(nuevoLibro);
+        libros = await BibliotecaService.GetLibrosAsync();
+        OcultarFormulario();
+    }
+}
