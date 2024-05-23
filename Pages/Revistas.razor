@@ -8,35 +8,35 @@
 
 @if (mostrarFormulario)
 {
-    <EditForm Model="nuevaRevista" OnValidSubmit="AgregarRevista">
+    <EditForm Model="revistaActual" OnValidSubmit="GuardarRevista">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
         <div>
             <label>Título:</label>
-            <InputText @bind-Value="nuevaRevista.Titulo" />
+            <InputText @bind-Value="revistaActual.Titulo" />
         </div>
         <div>
             <label>Autor:</label>
-            <InputText @bind-Value="nuevaRevista.Autor" />
+            <InputText @bind-Value="revistaActual.Autor" />
         </div>
         <div>
             <label>Género:</label>
-            <InputText @bind-Value="nuevaRevista.Genero" />
+            <InputText @bind-Value="revistaActual.Genero" />
         </div>
         <div>
             <label>Año de Publicación:</label>
-            <InputNumber @bind-Value="nuevaRevista.AñoPublicacion" />
+            <InputNumber @bind-Value="revistaActual.AñoPublicacion" />
         </div>
         <div>
             <label>Volumen:</label>
-            <InputNumber @bind-Value="nuevaRevista.Volumen" />
+            <InputNumber @bind-Value="revistaActual.Volumen" />
         </div>
         <div>
             <label>Número de Ejemplar:</label>
-            <InputNumber @bind-Value="nuevaRevista.NumeroEjemplar" />
+            <InputNumber @bind-Value="revistaActual.NumeroEjemplar" />
         </div>
-        <button type="submit">Agregar</button>
+        <button type="submit">Guardar</button>
         <button type="button" @onclick="OcultarFormulario">Cancelar</button>
     </EditForm>
 }
@@ -44,13 +44,16 @@
 <ul>
     @foreach (var revista in revistas)
     {
-        <li>@revista.Titulo - @revista.Autor - @revista.Genero - @revista.AñoPublicacion - Volumen: @revista.Volumen - Número: @revista.NumeroEjemplar</li>
+        <li>
+            @revista.Titulo - @revista.Autor - @revista.Genero - @revista.AñoPublicacion - Volumen: @revista.Volumen - Número: @revista.NumeroEjemplar
+            <button @onclick="() => EditarRevista(revista)">Editar</button>
+        </li>
     }
 </ul>
 
 @code {
     private List<Revista> revistas;
-    private Revista nuevaRevista = new Revista();
+    private Revista revistaActual = new Revista();
     private bool mostrarFormulario = false;
 
     protected override async Task OnInitializedAsync()
@@ -60,19 +63,34 @@
 
     private void MostrarFormulario()
     {
+        revistaActual = new Revista();  // Nueva revista
         mostrarFormulario = true;
     }
 
     private void OcultarFormulario()
     {
         mostrarFormulario = false;
-        nuevaRevista = new Revista();
+        revistaActual = new Revista();
     }
 
-    private async Task AgregarRevista()
+    private async Task GuardarRevista()
     {
-        await BibliotecaService.AddRevistaAsync(nuevaRevista);
+        if (revistaActual.Id == 0)
+        {
+            revistaActual.Id = revistas.Any() ? revistas.Max(r => r.Id) + 1 : 1;
+            await BibliotecaService.AddRevistaAsync(revistaActual);
+        }
+        else
+        {
+            await BibliotecaService.UpdateRevistaAsync(revistaActual);
+        }
         revistas = await BibliotecaService.GetRevistasAsync();
         OcultarFormulario();
+    }
+
+    private void EditarRevista(Revista revista)
+    {
+        revistaActual = revista;
+        mostrarFormulario = true;
     }
 }

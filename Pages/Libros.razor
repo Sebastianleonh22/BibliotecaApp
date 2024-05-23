@@ -8,27 +8,27 @@
 
 @if (mostrarFormulario)
 {
-    <EditForm Model="nuevoLibro" OnValidSubmit="AgregarLibro">
+    <EditForm Model="libroActual" OnValidSubmit="GuardarLibro">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
         <div>
             <label>Título:</label>
-            <InputText @bind-Value="nuevoLibro.Titulo" />
+            <InputText @bind-Value="libroActual.Titulo" />
         </div>
         <div>
             <label>Autor:</label>
-            <InputText @bind-Value="nuevoLibro.Autor" />
+            <InputText @bind-Value="libroActual.Autor" />
         </div>
         <div>
             <label>Género:</label>
-            <InputText @bind-Value="nuevoLibro.Genero" />
+            <InputText @bind-Value="libroActual.Genero" />
         </div>
         <div>
             <label>Año de Publicación:</label>
-            <InputNumber @bind-Value="nuevoLibro.AñoPublicacion" />
+            <InputNumber @bind-Value="libroActual.AñoPublicacion" />
         </div>
-        <button type="submit">Agregar</button>
+        <button type="submit">Guardar</button>
         <button type="button" @onclick="OcultarFormulario">Cancelar</button>
     </EditForm>
 }
@@ -36,13 +36,16 @@
 <ul>
     @foreach (var libro in libros)
     {
-        <li>@libro.Titulo - @libro.Autor - @libro.Genero - @libro.AñoPublicacion</li>
+        <li>
+            @libro.Titulo - @libro.Autor - @libro.Genero - @libro.AñoPublicacion
+            <button @onclick="() => EditarLibro(libro)">Editar</button>
+        </li>
     }
 </ul>
 
 @code {
     private List<Libro> libros;
-    private Libro nuevoLibro = new Libro();
+    private Libro libroActual = new Libro();
     private bool mostrarFormulario = false;
 
     protected override async Task OnInitializedAsync()
@@ -52,19 +55,34 @@
 
     private void MostrarFormulario()
     {
+        libroActual = new Libro();  // Nuevo libro
         mostrarFormulario = true;
     }
 
     private void OcultarFormulario()
     {
         mostrarFormulario = false;
-        nuevoLibro = new Libro();
+        libroActual = new Libro();
     }
 
-    private async Task AgregarLibro()
+    private async Task GuardarLibro()
     {
-        await BibliotecaService.AddLibroAsync(nuevoLibro);
+        if (libroActual.Id == 0)
+        {
+            libroActual.Id = libros.Any() ? libros.Max(l => l.Id) + 1 : 1;
+            await BibliotecaService.AddLibroAsync(libroActual);
+        }
+        else
+        {
+            await BibliotecaService.UpdateLibroAsync(libroActual);
+        }
         libros = await BibliotecaService.GetLibrosAsync();
         OcultarFormulario();
+    }
+
+    private void EditarLibro(Libro libro)
+    {
+        libroActual = libro;
+        mostrarFormulario = true;
     }
 }

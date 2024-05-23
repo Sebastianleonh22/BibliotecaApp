@@ -6,7 +6,6 @@ namespace BibliotecaApp.Data
 {
     public class BibliotecaService
     {
-
         private readonly List<Libro> _libros;
 
         public BibliotecaService()
@@ -25,6 +24,17 @@ namespace BibliotecaApp.Data
             return Task.CompletedTask;
         }
 
+        public Task UpdateLibroAsync(Libro libro)
+        {
+            var libroExistente = _libros.FirstOrDefault(l => l.Id == libro.Id);
+            if (libroExistente != null)
+            {
+                _libros.Remove(libroExistente);
+                _libros.Add(libro);
+            }
+            return Task.CompletedTask;
+        }
+
         public Task<List<Revista>> GetRevistasAsync()
         {
             return Task.FromResult(_libros.OfType<Revista>().ToList());
@@ -36,6 +46,17 @@ namespace BibliotecaApp.Data
             return Task.CompletedTask;
         }
 
+        public Task UpdateRevistaAsync(Revista revista)
+        {
+            var revistaExistente = _libros.OfType<Revista>().FirstOrDefault(r => r.Id == revista.Id);
+            if (revistaExistente != null)
+            {
+                _libros.Remove(revistaExistente);
+                _libros.Add(revista);
+            }
+            return Task.CompletedTask;
+        }
+
         public Task<List<LibroElectronico>> GetLibrosElectronicosAsync()
         {
             return Task.FromResult(_libros.OfType<LibroElectronico>().ToList());
@@ -44,6 +65,17 @@ namespace BibliotecaApp.Data
         public Task AddLibroElectronicoAsync(LibroElectronico libroElectronico)
         {
             _libros.Add(libroElectronico);
+            return Task.CompletedTask;
+        }
+
+        public Task UpdateLibroElectronicoAsync(LibroElectronico libroElectronico)
+        {
+            var libroElectronicoExistente = _libros.OfType<LibroElectronico>().FirstOrDefault(le => le.Id == libroElectronico.Id);
+            if (libroElectronicoExistente != null)
+            {
+                _libros.Remove(libroElectronicoExistente);
+                _libros.Add(libroElectronico);
+            }
             return Task.CompletedTask;
         }
     }
