@@ -39,6 +39,7 @@
         <li>
             @libro.Titulo - @libro.Autor - @libro.Genero - @libro.AñoPublicacion
             <button @onclick="() => EditarLibro(libro)">Editar</button>
+            <button @onclick="() => EliminarLibro(libro.Id)">Eliminar</button>
         </li>
     }
 </ul>
@@ -84,5 +85,11 @@
     {
         libroActual = libro;
         mostrarFormulario = true;
+    }
+
+    private async Task EliminarLibro(int id)
+    {
+        await BibliotecaService.DeleteLibroAsync(id);
+        libros = await BibliotecaService.GetLibrosAsync();
     }
 }

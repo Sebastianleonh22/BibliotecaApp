@@ -35,6 +35,16 @@ namespace BibliotecaApp.Data
             return Task.CompletedTask;
         }
 
+        public Task DeleteLibroAsync(int id)
+        {
+            var libro = _libros.FirstOrDefault(l => l.Id == id);
+            if (libro != null)
+            {
+                _libros.Remove(libro);
+            }
+            return Task.CompletedTask;
+        }
+
         public Task<List<Revista>> GetRevistasAsync()
         {
             return Task.FromResult(_libros.OfType<Revista>().ToList());
@@ -53,6 +63,16 @@ namespace BibliotecaApp.Data
             {
                 _libros.Remove(revistaExistente);
                 _libros.Add(revista);
+            }
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteRevistaAsync(int id)
+        {
+            var revista = _libros.OfType<Revista>().FirstOrDefault(r => r.Id == id);
+            if (revista != null)
+            {
+                _libros.Remove(revista);
             }
             return Task.CompletedTask;
         }
@@ -78,5 +98,16 @@ namespace BibliotecaApp.Data
             }
             return Task.CompletedTask;
         }
+
+        public Task DeleteLibroElectronicoAsync(int id)
+        {
+            var libroElectronico = _libros.OfType<LibroElectronico>().FirstOrDefault(le => le.Id == id);
+            if (libroElectronico != null)
+            {
+                _libros.Remove(libroElectronico);
+            }
+            return Task.CompletedTask;
+        }
     }
 }
+
